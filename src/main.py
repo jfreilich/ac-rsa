@@ -1,7 +1,7 @@
 import sys
 
 
-import audiolab
+import scikits.audiolab as audiolab
 
 import numpy as np
 
