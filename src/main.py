@@ -1,7 +1,6 @@
 import sys
-import audiolab
+import scikits.audiolab as audiolab
 import numpy as np
-
 
 def main():
     x, fs, nbits = audiolab.wavread(argv[0])
@@ -17,7 +16,6 @@ def main():
     y = scipy.real(scipy.ifft(Y))
 
 def main2():
-
 
    #Python 2.x:
    #from __future__ import division
