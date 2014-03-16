@@ -15,6 +15,17 @@ def main():
     Y = X*H
     y = scipy.real(scipy.ifft(Y))
 
+def simplified_attack(m, n, e):
+    g = 2**((m/2)-1)
+    for i in range(m/2-1,0,-1):
+        g2 = g + 2**(i-1) - 1 #g2 = g^(i,1) wtf is that
+        b = decrypt_and_analyze_leakage_of_q(g2+n)
+        g = g + (2**(i-1))*b
+    q = g
+    p = n/q
+    print p
+    print q
+
 def main2():
 
    #Python 2.x:
