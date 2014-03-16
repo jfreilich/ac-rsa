@@ -1,6 +1,7 @@
 import sys
 import wave
 import scipy as sp
+import scipy.fftpack
 import numpy as np
 import matplotlib.pyplot as plt
 import fourier
@@ -11,36 +12,54 @@ def main():
    else:
       # Open the .wav file
       wav_file = wave.open(sys.argv[1], 'r')
-      # assumes that it is 1 channel with int16 data.
+      # assumes that it is 1 channel
       assert wav_file.getnchannels() == 1, ".wav is not single channel."
-      # read the entire .wav file into an array of amplitude values.
-      num_frames = wav_file.getnframes()
-      wav = np.frombuffer(wav_file.readframes(num_frames), 'i' + str(wav_file.getsampwidth()))
-      # use fft to transform into frequency wave.
+      # get some basic information about the wav
       sample_rate = wav_file.getframerate()
       frame_size = 1.0/sample_rate
-      wav_length =  frame_size*num_frames
-      wav_transform = fourier.fft(wav)
-      # get the time function
-      wav_times = get_times(wav_transform, sample_rate)
-      # graph the wave
-      graph_frequencies(wav_times, wav_transform)
+      num_frames = wav_file.getnframes()
+      int_size = wav_file.getsampwidth()
+      # read the wave into a np.array of amplitude values
+      wav = np.frombuffer(wav_file.readframes(num_frames),
+                           # Adjust how big the integers are based on wav
+                           'i' + str(int_size))
+      wav_file.close()
+      # Get array of times associated with each amplitude value
+      wav_times = get_times(num_frames, frame_size)
+      # Get FFT, array of amplitudes for each frequency value
+      wav_fft = abs(sp.fft(wav))
+      # Get the associated frequencies
+      wav_freqs = scipy.fftpack.fftfreq(wav.size, frame_size)
+      # Graph everything
+      graph_frequencies(wav, wav_times, wav_freqs, wav_fft)
 
-def get_times(samples, sample_rate):
+# Given number of frames, and how often they were sampled
+# return an array of times for those frames.
+def get_times(num_frames, frame_size):
    times = []
-   # time = index_in_array*time_multiplier
-   time_multiplier = 1.0/sample_rate
-   for i in range(len(samples)):
-      times.append(i * time_multiplier)
+   # time = index_in_array*frame_size
+   for i in range(num_frames):
+      times.append(i * frame_size)
    return times
 
-def graph_frequencies(wav_times, wav_frequencies):
-   plt.plot(wav_times, wav_frequencies)
-   plt.title("Frequency vs Time")
-   plt.xlabel("Time")
-   plt.ylabel("Frequency")
+def graph_frequencies(wav, times, freqs, fft):
+   # Plot Amplitude wave
+   plt.subplot(211)
+   plt.plot(times, wav)
+   plt.title("Amplitude vs. Time")
+   plt.xlabel("Time (s)")
+   plt.ylabel("Amplitude (dB)")
+   # Plot FFT
+   plt.subplot(212)
+   plt.plot(freqs, 20*sp.log10(fft), 'x')
+   plt.title("Magnitude vs. Frequency (Hz)")
+   plt.xlabel("Frequency (Hz)")
+   plt.ylabel("Magnitude (Y)")
+   plt.xlim(0)
+   #plt.xlim(20000,23000)
+   #plt.ylim(40,90)
+   plt.savefig("wave.png")
    plt.show()
-
 
 if __name__ == '__main__':
     main()
