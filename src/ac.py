@@ -37,7 +37,7 @@ def main():
       #x = sp.sin(2*sp.pi*440*t)
       #wav_stft = stft(x, 8000, 0.050, 0.020)
       w = windows.rectangular(8)
-      wav_stft = stft(wav, w, L=64)
+      wav_stft = stft(wav, w, L=8)
       graph_stft(wav_stft)
 
 # Given number of frames, and how often they were sampled
@@ -78,7 +78,7 @@ def graph_frequencies(wav, times, freqs, fft):
 
 def graph_stft(stft):
    plt.figure()
-   plt.imshow(sp.absolute(stft.T), origin='lower', aspect='auto',
+   plt.imshow(sp.absolute(stft), origin='lower', aspect='auto',
              interpolation='nearest')
    plt.xlabel("Time")
    plt.ylabel("Frequency")
