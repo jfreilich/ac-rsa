@@ -50,7 +50,8 @@ for frequencies in np.transpose(X.T):
     # find the second match at least threshold index away
     i = 0
     maxB = 0
-    for i in range(len(frequencies)):
+    # Limit the lower bound to ignore ambient noise
+    for i in range(18, len(frequencies)):
         if abs(i - maxA) < threshold:
             continue
         amp = frequencies[i]
@@ -66,26 +67,23 @@ freq_to_button = {}
 for line in freq_file:
     line = line.split(",")
     pair = (int(line[0]), int(line[1]))
-    button = line[2]
+    button = line[2].strip()
     freq_to_button[pair] = button
 
 ####### FIND WHAT WAS PRESSED ######################
 buttons = []
-
 found = False
 for i in range(len(maxs)):
+    # ignore beginning and end
     if i == 0 or i == len(maxs)-1:
         continue
-    if (not found
-        and maxs[i] == maxs[i - 1]
-        and maxs[i] == maxs[i + 1]
-        and maxs[i] in freq_to_button):
+    # if not found yet and is a matching tone
+    if not found and maxs[i] in freq_to_button:
         buttons.append(freq_to_button[maxs[i]])
         found = True
-    if (maxs[i][0] < 20 and maxs[i][1] < 20
-        and maxs[i+1][0] < 20 and maxs[i+1][1]):
+    # if both values are under 20, this is noise, reset found
+    if maxs[i][0] < 20 and maxs[i][1] < 20:
         found = False
 
 # Output data
-for button in buttons:
-    print button.strip()
+print "".join(buttons)
