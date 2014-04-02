@@ -10,6 +10,7 @@ freq_file = sys.argv[2]
 sr,x = scipy.io.wavfile.read(wavfile)
 # Read the freq file
 freq_file = open(freq_file)
+freq_file.next()
 
 ######## STFT #####################################
 
@@ -68,7 +69,6 @@ for line in freq_file:
     button = line[2]
     freq_to_button[pair] = button
 
-
 ####### FIND WHAT WAS PRESSED ######################
 buttons = []
 
@@ -76,7 +76,7 @@ found = False
 for i in range(len(maxs)):
     if i == 0 or i == len(maxs)-1:
         continue
-    if (found == false
+    if (not found
         and maxs[i] == maxs[i - 1]
         and maxs[i] == maxs[i + 1]
         and maxs[i] in freq_to_button):
@@ -88,4 +88,4 @@ for i in range(len(maxs)):
 
 # Output data
 for button in buttons:
-    print button
+    print button.strip()
